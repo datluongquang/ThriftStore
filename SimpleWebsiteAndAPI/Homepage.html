@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Homepage</title>
+    <link rel="import" href="includes/head.html">
+</head>
+<body>
+    <script>
+        $(document).ready(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $("#Greeting").html("Hello " + GetURLParameter('username'));
+            $(".addCart").click(function () {
+                var productId = $(this).attr('id');
+                service("addToCart", { ProductId: productId, UserId: GetURLParameter('userid') },
+                    function (response) {
+                        var deletedRow = "#product" + productId;
+                        $(deletedRow).remove();
+                    },
+                    function (response) {
+
+                    })
+            })
+            $(".cat").click(function () {
+                var cat = $(this).attr('id');
+                var category = "";
+                if (cat === "sport") {
+                    category = "Sport";
+                }
+                else if (cat === "shoot") {
+                    category = "Shooting";
+                }
+                else if (cat === "fight") {
+                    category = "Fighting";
+                }
+                var d = "<table class='table table-striped table-bordered'><tr><th>Item Name</th><th>Description</th><th>Price</th></tr>";
+                service("findItem", { Category: category },
+                    function (response) {
+                        $.each(response, function (index, value) {
+                            console.log(value);
+                            d += "<tr>" + "<td>" + value.Name + "</td>"
+                                + "<td>" + value.Description + "</td>"
+                                + "<td>" + value.Price + "</td>" + "</tr>";
+                        })
+                        d += "</table>";
+                        $("#item").html(d);
+                    },
+                    function (response) {
+
+                    })
+            })
+            $("#seeCart").click(function () {
+                window.location = "cart.html?userid=" + GetURLParameter('userid') + "&userid=" +GetURLParameter('username');
+                $("#cart").show();
+                var d = "<table class='table table-striped table-bordered'><tr><th>Item Name</th><th>Description</th><th>Price</th></tr>";
+                service("showCart", { UserId: GetURLParameter('userid') },
+                    function (response) {
+                        $.each(response, function (index, value) {
+                            console.log(value);
+                            d += "<tr>" + "<td>" + value.Name + "</td>"
+                                + "<td>" + value.Description + "</td>"
+                                + "<td>" + value.Price + "</td>" + "</tr>";
+                        })
+                        d += "</table>";
+                        $("#cart").html(d);
+                    },
+                    function (response) {
+
+                    })
+            })
+        })
+    </script>
+    <h1 id="Greeting"></h1>
+    <div id="Homepage" class="container">
+        <h1 id="Greeting"></h1>
+        <span id="seeCart" class="btn btn-primary">Show Cart</span>
+        <div id="body">
+            <div class="row">
+                <div class="col-md-4">
+                    <img src=https://clickhowto.com/wp-content/uploads/2016/11/Sports_ball__twitter_.jpg" id="sport" class="cat" style="height:100px;width:100px" />
+                </div>
+                <div class="col-md-4">
+                    <img src="http://ajaygour.com/wp-content/uploads/2019/04/Sniper-3D-Gun-Shooter-Free-Elite-Shooting-Games-logo.png" id="shoot" class="cat" style="height:100px;width:100px" />
+                </div>
+                <div class="col-md-4">
+                    <img src="https://i.poki.com/q80,w204,h204,g29060,-1-irrational-karate.webp" id="fight" class="cat" style="height:100px;width:100px" />
+                </div>
+            </div>
+            <div class="row">
+                <div id="item">
+                    <script>
+                        let d = "<table class='table table-striped table-bordered'><tr><th>Item Name</th><th>Description</th><th>Price</th></tr>";
+                        service("getAllItem", {},
+                            function (response) {
+                                $.each(response, function (index, value) {
+                                    d += "<tr id=product"+value.ProductId+">" + "<td>" + value.Name + "</td>"
+                                        + "<td>" + value.Description + "</td>"
+                                        + "<td>" + value.Price + "</td>"
+                                        + "<td><span class='btn addCart' id=" + value.ProductId + " style='background-color:blue;'>Add To Cart</span></td></tr>";
+                                })
+                                d += "</table>";
+                                $("#item").html(d);
+                            },
+                            function (response) {
+
+                            })
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

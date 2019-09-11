@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>My First Website</title>
+	<link rel="import" href="includes/head.html">
+    <script>
+        $(document).ready(function () {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            var userid = 0;
+            $("#newUserForm").hide();
+            $("#LogInForm").show();
+            $("#success").hide();
+            $("#fail").hide();
+            $("#fail2").hide();
+            $("#newUser").click(function () {
+                $("#LogInForm").hide();
+                $("#newUserForm").show();
+            })
+            $("#Submit").click(function () {
+                var user = $("#username").val();
+                var password = $("#password").val();
+                var BankAccountId = $("#Bank").val();
+                var Type = $("#Type :selected").text();
+                console.log({ username: user, password: password, BankAccountId: BankAccountId, SellerOrBuyer: Type });
+                service("newUser", { username: user , password: password, BankAccountId: BankAccountId, SellerOrBuyer: Type } ,
+                    function (response) {
+                        $("#newUserForm").hide();
+                        $("#LogInForm").show();
+                        $("#success").show();
+                    },
+                    function (response) {
+                        $("#fail2").show();
+                    })
+
+            })
+            $("#logIn").click(function () {
+                usernameLI = $("#usernameLI").val();
+                var passwordLI = $("#passwordLI").val();
+                console.log(usernameLI);
+                service("LogIn", {username : usernameLI ,password : passwordLI},
+                    function (response) {
+                        if (response[0] != undefined) {
+                            if (response[0].SellerOrBuyer == 'Buyer') {
+                                window.location = "Homepage.html?username=" + usernameLI + "&userid=" + response[0].UserId;
+                            }
+                            else if (response[0].SellerOrBuyer == 'Seller') {
+                                window.location = "history.html?username=" + usernameLI + "&userid=" + response[0].UserId;
+                            }
+                            //$("#Greeting").show();
+                            //$("#Greeting").html("Hello " + usernameLI);
+                            //$("#LogInForm").hide();
+                            //$("#Homepage").show();
+                            //userid = response[0].UserId;
+                        }
+                        else {
+                            $("#fail").show();
+                        }
+                    },
+                    function (response) {
+                        alert("Log In Failed");
+                    })
+            })
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <div class="alert alert-success" id="success" role="alert">
+            Create new user successfully!
+        </div>
+        <div class="alert alert-danger" role="alert" id="fail">
+            Incorrect username or password!
+        </div>
+        <div class="alert alert-danger" role="alert" id="fail2">
+            Incorrect or missing fields
+        </div>
+        <div class="container">
+            <form id="LogInForm">
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>Username</label><input type="text" id="usernameLI" /><br />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>Password</label><input type="password" id="passwordLI" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <span id="logIn" class="btn btn-primary">Log In</span>
+                        <span id="newUser" class="btn">New User</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <div class="container">
+            <form id="newUserForm">
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>Username</label><input type="text" id="username" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>Password</label><input type="password" id="password" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>BankAccountId</label><input type="text" id="Bank" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <label>Seller or Buyer</label><select id="Type">
+                            <option>Seller</option>
+                            <option>Buyer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 offset-md-4">
+                        <span id="Submit" class="btn">Submit</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
+
